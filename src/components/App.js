@@ -9,14 +9,14 @@ class App extends React.Component {
     constructor() {
         super();
 
+        document.ontouchmove = function (event) {
+            event.preventDefault();
+        }
         this.onButtonPress = this.onButtonPress.bind(this);
         this.onButtonRelease = this.onButtonRelease.bind(this);
 
         this.socket = io.connect('http://192.168.1.10:3000');
-        this.socket.on('news', (data) => {
-            console.log(data);
-            this.socket.emit('my other event', {my: 'data'});
-        });
+
         const buttonsState = [];
         for (var i = 0; i < 64; i++) {
             buttonsState.push({
@@ -30,10 +30,20 @@ class App extends React.Component {
 
     onButtonPress(index) {
         this.socket.emit('press', {index});
+        var buttonsState = this.state.buttonsState.slice(0);
+        buttonsState[index-1].color = 'blue';
+        this.setState({
+            buttonsState
+        })
     }
 
     onButtonRelease(index) {
         this.socket.emit('release', {index});
+        var buttonsState = this.state.buttonsState.slice(0);
+        buttonsState[index-1].color = 'silver';
+        this.setState({
+            buttonsState
+        })
     }
 
     render() {

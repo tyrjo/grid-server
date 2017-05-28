@@ -21,10 +21,8 @@ function setupMidi() {
     midiOutput = new midi.output();
 
     var portCount = midiOutput.getPortCount();
-    console.log(portCount);
     for(var i=0; i<portCount; i++) {
         var name = midiOutput.getPortName(i);
-        console.log(name);
         if (name === 'SimpleSynth virtual input') {
             console.log("opening port", name);
             midiOutput.openPort(i);
@@ -54,10 +52,11 @@ function setupMidi() {
 
 io.on('connection', function (socket) {
     socket.on('press', function (data) {
-        console.log(data);
-        midiOutput.sendMessage([0x90, data.index + 64, 100])
+        //console.log(data);
+        // note on, centered on middle C, velocity 100
+        midiOutput.sendMessage([0x90, 28 + data.index, 100])
     });
     socket.on('release', function (data) {
-        midiOutput.sendMessage([0x80, data.index + 64, 0])
+        midiOutput.sendMessage([0x80, 28 + data.index, 0])
     });
 });
