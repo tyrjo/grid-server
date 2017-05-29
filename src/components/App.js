@@ -11,11 +11,19 @@ class App extends React.Component {
 
         document.ontouchmove = function (event) {
             event.preventDefault();
-        }
+        };
         this.onButtonPress = this.onButtonPress.bind(this);
         this.onButtonRelease = this.onButtonRelease.bind(this);
 
         this.socket = io.connect('http://192.168.1.10:3000');
+
+        this.socket.on('press', (data)=>{
+            this.onButtonPress(data.index, data.color);
+        });
+
+        this.socket.on('release', (data)=>{
+            this.onButtonRelease(data.index, data.color);
+        });
 
         const buttonsState = [];
         for (var i = 0; i < 64; i++) {
@@ -28,19 +36,19 @@ class App extends React.Component {
         }
     }
 
-    onButtonPress(index) {
+    onButtonPress(index, color) {
         this.socket.emit('press', {index});
         var buttonsState = this.state.buttonsState.slice(0);
-        buttonsState[index-1].color = 'blue';
+        buttonsState[index-1].color = color || 'blue';
         this.setState({
             buttonsState
         })
     }
 
-    onButtonRelease(index) {
+    onButtonRelease(index, color) {
         this.socket.emit('release', {index});
         var buttonsState = this.state.buttonsState.slice(0);
-        buttonsState[index-1].color = 'silver';
+        buttonsState[index-1].color = color || 'silver';
         this.setState({
             buttonsState
         })
