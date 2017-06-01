@@ -4,6 +4,10 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 import Echo from './games/echo';
+import Play from './games/play';
+import Patterns from './games/patterns';
+import Samples from './games/samples';
+
 import {EVENT_START} from './games/echo';
 import {EVENT_STOP} from './games/echo';
 
@@ -19,28 +23,31 @@ app.get('/', function (req, res) {
 });
 
 var echo = new Echo();
+var play = new Play();
+var patterns = new Patterns();
+var samples = new Samples();
+var currentGame = samples;
 
 io.on('connection', function (socket) {
-    echo.on(EVENT_START, (event)=> {
+    currentGame.on(EVENT_START, (event)=> {
         socket.emit('press', {
-            index: event.note - startMidiNote,
+            index: event.note,
             color: event.color
         });
     });
 
-    echo.on(EVENT_STOP, (event)=> {
+    currentGame.on(EVENT_STOP, (event)=> {
         socket.emit('release', {
-            index: event.note - startMidiNote,
+            index: event.note,
             color: event.color
         });
     });
-    echo.run();
+    currentGame.run();
 
     socket.on('press', function (data) {
-        // note on, centered on middle C, velocity 100
-        echo.onPress(data.index + startMidiNote);
+        currentGame.onPress(data.index);
     });
     socket.on('release', function (data) {
-        echo.onRelease(data.index + startMidiNote);
+        currentGame.onRelease(data.index);
     });
 });

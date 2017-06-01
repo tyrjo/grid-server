@@ -8,15 +8,27 @@ const PLAY_EXAMPLE = 'PLAY_EXAMPLE';
 const INPUT = 'INPUT';
 
 const states = ['PLAY_EXAMPLE', 'INPUT'];
-export default class Echo extends EventEmitter {
+export default class Patterns extends EventEmitter {
 
     constructor() {
         super();
         this.midi = new Midi();
         this.noteSpaceMs = 500;
         this.noteDurationMs = 300;
-        this.sequence = [24, 24, 25, 27, 27, 25, 24, 22, 20, 20, 22, 24, 24, 22, 22];
+        this.sequences = [
+            [1],
+            [1, 2],
+            [1, 2, 3, 4],
+            [1, 2, 3, 4, 5, 6, 7, 8],
+            [1, 9],
+            [1, 9, 17, 25, 33, 41, 49, 57],
+            [1, 10],
+            [1, 10, 19, 28, 37, 46, 55, 64],
+            [28, 29, 36, 37],
+            [32, 36, 39, 31, 36, 39, 29, 36, 39],
+        ];
         this.sequenceIndex = 0;
+        this.currentSequence = 0;
         this.state = PLAY_EXAMPLE;
         this.start = this.start.bind(this);
         this.stop = this.stop.bind(this);
@@ -27,19 +39,19 @@ export default class Echo extends EventEmitter {
     run() {
         // Play the sequence
         this.state = PLAY_EXAMPLE;
-        this.playNextNote(0);
+        this.playNextNote(0, this.sequences[this.currentSequence]);
     }
 
-    playNextNote(index) {
+    playNextNote(index, sequence) {
 
-        if (index < this.sequence.length) {
-            this.start(this.sequence[index], 'blue');
+        if (index < sequence.length) {
+            this.start(sequence[index], 'blue');
             setTimeout(()=> {
                 // Stop the prior note
-                this.stop(this.sequence[index], 'silver');
+                this.stop(sequence[index], 'silver');
             }, this.noteDurationMs);
             setTimeout(()=> {
-                this.playNextNote(index + 1);
+                this.playNextNote(index + 1, sequence);
             }, this.noteSpaceMs);
         } else {
             this.state = INPUT;
@@ -73,6 +85,7 @@ export default class Echo extends EventEmitter {
     success() {
         this.state = PLAY_EXAMPLE;
         this.sequenceIndex = 0;
+        this.currentSequence = (this.currentSequence + 1) % this.sequences.length;
         this.start(64, 'green');
         setTimeout(()=> {
             this.stop(64, 'silver');
@@ -86,10 +99,11 @@ export default class Echo extends EventEmitter {
                 this.midi.onPress(note);
                 break;
             case INPUT:
-                if (note == this.sequence[this.sequenceIndex]) {
+                var sequence = this.sequences[this.currentSequence];
+                if (note == sequence[this.sequenceIndex]) {
                     this.midi.onPress(note);
                     this.sequenceIndex += 1;
-                    if ( this.sequenceIndex >= this.sequence.length ) {
+                    if (this.sequenceIndex >= sequence.length) {
                         this.success();
                     }
                 } else {

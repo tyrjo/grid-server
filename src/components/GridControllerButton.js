@@ -11,6 +11,15 @@ const GridControllerButton = ({id, color, label, onButtonPress, onButtonRelease}
         onTouchEnd={onButtonRelease}
         style={{backgroundColor: color}}
     >
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        }}>
+            <div>
+                {id}
+            </div>
+        </div>
     </div>
 );
 
