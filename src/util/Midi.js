@@ -31,4 +31,11 @@ export default class Midi {
         this.midiOutput.sendMessage([0x80, note + this.startMidiNote, 0])
     }
 
+     sendPress(note) {
+        this.midiInput.sendMessage([0x90, note + this.startMidiNote, 127]);
+    }
+
+    sendRelease(note) {
+        this.midiInput.sendMessage([0x80, note + this.startMidiNote, 0])
+    }
 }

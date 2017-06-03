@@ -11,6 +11,9 @@ import Samples from './games/samples';
 import {EVENT_START} from './games/echo';
 import {EVENT_STOP} from './games/echo';
 
+import Midi from './util/Midi';
+
+const midi = new Midi();
 
 const startMidiNote = 28;
 
@@ -26,7 +29,7 @@ var echo = new Echo();
 var play = new Play();
 var patterns = new Patterns();
 var samples = new Samples();
-var currentGame = samples;
+var currentGame = echo;
 
 io.on('connection', function (socket) {
     currentGame.on(EVENT_START, (event)=> {
@@ -34,6 +37,7 @@ io.on('connection', function (socket) {
             index: event.note,
             color: event.color
         });
+        midi.sendPress(event.note);
     });
 
     currentGame.on(EVENT_STOP, (event)=> {
@@ -41,6 +45,7 @@ io.on('connection', function (socket) {
             index: event.note,
             color: event.color
         });
+        midi.sendRelease(event.note);
     });
     currentGame.run();
 

@@ -12,7 +12,7 @@ export default class Play extends EventEmitter {
     }
 
     onPress(note) {
-        play.sound('./src/wav/boing.wav');
+        play.sound('./src/wav/36.wav');
     }
 
     onRelease(note) {
